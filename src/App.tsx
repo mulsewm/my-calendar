@@ -2,7 +2,7 @@ import React from 'react';
 import Calendar from './components/Calendar/Calander';
 import Task from './components/Task/Task';
 import Label from './components/Label/Label';
-
+import Navbar from './components/Navbar/Navbar';
 function App() {
   interface LabelProps {
     text: string;
@@ -22,7 +22,6 @@ function App() {
   return (
     <div className="App">
       <Calendar />
-      <Label text="YourTextHere" color="YourColorHere" />
       {/* <Task task={taskData} onUpdateTask={updateTask} />
       <Label text="Sample Label" color="#ff0000" /> */}
 

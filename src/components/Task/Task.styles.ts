@@ -1,32 +1,32 @@
 // src/components/Task/Task.styles.ts
 
-import styled from '@emotion/styled';
+import styled from '@emotion/styled'; // or 'styled-components'
 
 export const TaskItem = styled.div`
-    background-color: #e2e4e6;
-    border-radius: 4px;
-    padding: 8px;
-    margin-top: 8px;
-    cursor: pointer;
-    word-break: break-all;
+    background-color: #e4f0f6; // a light blue background for tasks
+    border-radius: 3px;
+    padding: 6px;
+    margin-top: 5px;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1); // an inset shadow for a subtle border effect
+    word-break: break-word;
 `;
 
 export const EditInput = styled.input`
-    width: calc(100% - 16px); // Full width minus padding
+    width: 100%;
     border: none;
     border-bottom: 1px solid #ccc;
-    padding: 4px 8px;
-    margin-bottom: 8px;
+    padding: 5px;
 `;
 
 export const SaveButton = styled.button`
-    background-color: #5aac44;
+    background-color: #0079bf; // blue color for the save button
     color: white;
     border: none;
-    padding: 8px 16px;
+    padding: 5px 10px;
+    margin-top: 5px;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 3px;
     &:hover {
-        background-color: #519839;
+        background-color: #026aa7;
     }
 `;
