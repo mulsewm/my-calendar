@@ -13,7 +13,7 @@ export const Cell = styled.div`
     align-items: flex-start;
     overflow: hidden;
     position: relative;
-    min-height: 120px; // Or as needed to match your design
+    min-height: 120px; 
 `;
 
 export const DateLabel = styled.div`
@@ -40,4 +40,9 @@ export const AddTaskButton = styled.button`
         background-color: #026aa7;
     }
     align-self: center;
+`;
+export const HolidayLabel = styled.div`
+    color: red; // Style as needed
+    font-weight: bold;
+   
 `;

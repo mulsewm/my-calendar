@@ -8,8 +8,21 @@ interface TaskType {
     id: number;
     text: string;
 }
+interface Holiday {
+    date: string;
+    localName: string;
+}
 
-const DayCell: React.FC<{ date: Date }> = ({ date }) => {
+interface DayCellProps {
+    date: Date;
+  
+    holidays: Holiday[];
+    viewMode: string; 
+}
+
+
+const DayCell: React.FC<DayCellProps> = ({ date, holidays, viewMode }) => {
+
     const [tasks, setTasks] = useState<TaskType[]>([]);
     const [newTaskText, setNewTaskText] = useState('');
 
@@ -30,6 +43,10 @@ const DayCell: React.FC<{ date: Date }> = ({ date }) => {
     return (
         <S.Cell>
             <S.DateLabel>{date.toDateString()}</S.DateLabel>
+            {holidays.map(holiday => (
+                <S.HolidayLabel key={holiday.date}>{holiday.localName}</S.HolidayLabel>
+            ))}
+            {/* <S.DateLabel>{date.toDateString()}</S.DateLabel> */}
             {tasks.map(task => (
                 <Task key={task.id} task={task} onUpdateTask={handleUpdateTask} />
             ))}
@@ -37,10 +54,11 @@ const DayCell: React.FC<{ date: Date }> = ({ date }) => {
                 type="text"
                 value={newTaskText}
                 onChange={(e) => setNewTaskText(e.target.value)}
-                placeholder="Add a new task"
+                placeholder="what do u got today"
             />
             <S.AddTaskButton onClick={handleAddTask}>+</S.AddTaskButton>
         </S.Cell>
+
     );
 };
 

@@ -17,7 +17,7 @@ const NavBar: React.FC<NavBarProps> = ({ onViewChange }) => {
             </S.Branding>
             <S.NavControls>
             <S.NavButton>
-                    <FontAwesomeIcon icon={faPlane} style={{ marginRight: '8px' }} />
+                    <FontAwesomeIcon icon={faPlane} style={{ color:'darkblue', marginRight: '8px' }} />
                     Travidux, LLC
                 </S.NavButton>
                 <S.NavButton>
