@@ -21,7 +21,7 @@ interface DayCellProps {
 }
 
 
-const DayCell: React.FC<DayCellProps> = ({ date, holidays, viewMode }) => {
+const DayCell: React.FC<DayCellProps> = ({ date, holidays, viewMode, updateTasks }) => {
 
     const [tasks, setTasks] = useState<TaskType[]>([]);
     const [newTaskText, setNewTaskText] = useState('');
@@ -31,9 +31,10 @@ const DayCell: React.FC<DayCellProps> = ({ date, holidays, viewMode }) => {
             alert('Task cannot be empty');
             return;
         }
-        const newTask = { id: Date.now(), text: newTaskText };
+        const newTask = { id: Date.now(), text: newTaskText, date: date.toISOString().split('T')[0] };
         setTasks([...tasks, newTask]);
         setNewTaskText('');
+        updateTasks([...tasks, newTask]); // Update the calendar's tasks state
     };
 
     const handleUpdateTask = (taskId: number, newText: string) => {

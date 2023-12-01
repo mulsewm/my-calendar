@@ -22,10 +22,11 @@ const Calendar: React.FC = () => {
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth()); // Current month (0-11)
     const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; // Day labels
     const [daysToShow, setDaysToShow] = useState<Date[]>([]);
-    const [allTasks, setAllTasks] = useState<TaskType[]>([]);
+
+   const [allTasks, setAllTasks] = useState<TaskType[]>([]);
 
     const collectTasks = (newTasks: TaskType[]) => {
-        setAllTasks(prevTasks => [...prevTasks, ...newTasks]);
+        setAllTasks([...allTasks, ...newTasks]);
     };
 
 
@@ -111,14 +112,15 @@ const Calendar: React.FC = () => {
 
     // Export to CSV function
     const exportToCsv = () => {
+        console.log("Exporting tasks:", allTasks); 
+    
         let csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += "Date, Task ID, Task Text, Task Color\n"; 
-
+        csvContent += "Date, Task ID, Task Text, Task Color\n"; // Column headers
+    
         allTasks.forEach(task => {
-            const row = `${task.date}, ${task.id}, "${task.text}", "${task.taskColor}"\n`;
+            const row = `${task.date}, ${task.id}, "${task.text}"\n`;
             csvContent += row;
         });
-
         // Create a Blob with the CSV content
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
@@ -160,21 +162,21 @@ const Calendar: React.FC = () => {
 
                 </CalendarHeader>
                 <S.CalendarGrid>
-  {daysToShow.map((day, index) => {
-    const dayString = day.toISOString().split('T')[0];
-    const dayHolidays = holidays.filter(holiday => holiday.date === dayString);
+                {daysToShow.map((day, index) => {
+                    const dayString = day.toISOString().split('T')[0];
+                    const dayHolidays = holidays.filter(holiday => holiday.date === dayString);
 
-    return (
-      <DayCell 
-        key={index} 
-        date={day} 
-        holidays={dayHolidays} 
-        viewMode={viewMode} 
-        updateTasks={collectTasks}
-      />
-    );
-  })}
-</S.CalendarGrid>
+                    return (
+                        <DayCell
+                            key={index}
+                            date={day}
+                            holidays={dayHolidays}
+                            viewMode={viewMode}
+                            updateTasks={collectTasks}
+                        />
+                    );
+                })}
+            </S.CalendarGrid>
                 <WeekdayFooter>
                     {['1', '2', '3', '4', '5', '6', '7'].map((num) => (
                         <FooterItem key={num}>{num}</FooterItem>
