@@ -25,7 +25,7 @@ export const TaskInput = styled.input`
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 8px;
-    width: calc(100% - 20px); // Subtracting padding
+    width: calc(100% - 20px);
     margin-bottom: 8px;
 `;
 

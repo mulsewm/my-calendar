@@ -1,7 +1,7 @@
 // src/components/Calendar/DayCell.tsx
 
 import React, { useState } from 'react';
-import Task from '../Task/Task'; // Make sure you have this component
+import Task from '../Task/Task'; 
 import * as S from './DayCell.styles';
 
 interface TaskType {

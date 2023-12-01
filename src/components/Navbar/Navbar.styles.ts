@@ -1,12 +1,12 @@
 // src/components/NavBar/NavBar.styles.ts
 
-import styled from '@emotion/styled'; // or 'styled-components'
+import styled from '@emotion/styled'; 
 
 export const NavBarContainer = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #ff9f00; // Orange background color
+    background-color: #ff9f00; 
     padding: 10px 20px;
 `;
 
@@ -77,7 +77,7 @@ export const DropdownMenu = styled.div`
   border-radius: 4px;
   padding: 8px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  z-index: 1000; // Make sure it's on top of other elements
+  z-index: 1000; 
 
   p {
     padding: 8px;

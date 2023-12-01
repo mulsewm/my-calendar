@@ -1,26 +1,40 @@
-// src/components/NavBar/NavBar.tsx
-
-import React, {useState} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlane, faUsers, faCalendarWeek, faCalendarAlt, faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
+import { faPlane, faUsers, faCalendarAlt, faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
 import * as S from './Navbar.styles';
 import html2canvas from 'html2canvas';
 
-
-
 interface NavBarProps {
     onViewChange: (view: string) => void;
+    onDownloadAsPng: () => void;
 }
 
+const Navbar: React.FC<NavBarProps> = ({ onViewChange, onDownloadAsPng }) => {
 
-const Navbar: React.FC<NavBarProps & { onDownloadAsPng: () => void }> = ({ onViewChange, onDownloadAsPng }) => {
     const [menuOpen, setMenuOpen] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null); 
 
     const handleMenuClick = () => {
         setMenuOpen(!menuOpen);
     };
-   
-      
+
+
+
+    useEffect(() => {
+        // Add the type to the event parameter
+        const handleClickOutside = (event: MouseEvent) => {
+            const target = event.target as HTMLElement; 
+            if (menuRef.current && !menuRef.current.contains(target)) {
+                setMenuOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     return (
         <S.NavBarContainer>
@@ -41,12 +55,11 @@ const Navbar: React.FC<NavBarProps & { onDownloadAsPng: () => void }> = ({ onVie
                 <FontAwesomeIcon icon={faCalendarAlt} style={{ marginRight: '8px' }} />
                 Calendar
             </S.NavButton>
-        <S.NavButton onClick={handleMenuClick}>
+            <S.NavButton onClick={handleMenuClick}>
                 <FontAwesomeIcon icon={faEllipsisVertical} />
-                
             </S.NavButton>
             {menuOpen && (
-                <S.DropdownMenu>
+                <S.DropdownMenu ref={menuRef}>
                     <p onClick={() => {/* handle import logic */}}>Import</p>
                     <p onClick={() => {/* handle export logic */}}>Export</p>
                     <p onClick={onDownloadAsPng}>Download as PNG</p>

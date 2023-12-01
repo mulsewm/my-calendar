@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import DayCell from './DayCell';
 import Navbar from '../Navbar/Navbar';
 import * as S from './Calendar.styles';
-import { CalendarHeader, ViewControls, CalendarGrid } from './Calendar.styles';
+import { CalendarHeader, ViewControls, CalendarGrid, WeekdayFooter, FooterItem  } from './Calendar.styles';
 import html2canvas from 'html2canvas';
 
 interface Holiday {
@@ -19,6 +19,7 @@ const Calendar: React.FC = () => {
     const [holidays, setHolidays] = useState<Holiday[]>([]);
     const [currentFilter, setCurrentFilter] = useState<'week' | 'month'>('week'); // 'week' or 'month'
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth()); // Current month (0-11)
+    const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; // Day labels
 
     useEffect(() => {
         const fetchHolidays = async () => {
@@ -98,10 +99,11 @@ const Calendar: React.FC = () => {
     return (
         <>
             {/* navbar */}
-            <div id='calendar'>
 
             
             <Navbar onViewChange={handleViewChange} onDownloadAsPng={handleDownloadAsPng} />
+            <div id='calendar'>
+
             <CalendarHeader>
                 <select value={currentMonth} onChange={(e) => setCurrentMonth(parseInt(e.target.value, 10))}>
                     {Array.from({ length: 12 }, (_, i) => (
@@ -134,6 +136,11 @@ const Calendar: React.FC = () => {
                     );
                 })}
             </S.CalendarGrid>
+            <WeekdayFooter>
+        {['1', '2', '3', '4', '5', '6', '7'].map((num) => (
+          <FooterItem key={num}>{num}</FooterItem>
+        ))}
+      </WeekdayFooter>
             </div>
         </>
     );
