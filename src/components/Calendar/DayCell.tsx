@@ -15,7 +15,7 @@ interface Holiday {
 
 interface DayCellProps {
     date: Date;
-  
+    updateTasks: (newTasks: TaskType[]) => void;
     holidays: Holiday[];
     viewMode: string; 
 }

@@ -7,6 +7,14 @@ interface TaskProps {
     };
     onUpdateTask: (id: number, newText: string) => void;
 }
+export interface TaskType {
+    id: number;
+    text: string;
+    date?: string; // Include date if tasks have a date property
+    taskColor?: string; // Include taskColor if tasks have a color property
+}
+
+
 
 const Task: React.FC<TaskProps> = ({ task, onUpdateTask }) => {
     const [isEditing, setIsEditing] = useState(false);

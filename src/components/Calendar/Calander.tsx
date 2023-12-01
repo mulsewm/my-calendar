@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import DayCell from './DayCell';
+import { TaskType } from '../Task/Task';
 import Navbar from '../Navbar/Navbar';
 import * as S from './Calendar.styles';
 import { CalendarHeader, ViewControls, CalendarGrid, WeekdayFooter, FooterItem } from './Calendar.styles';
@@ -21,6 +22,12 @@ const Calendar: React.FC = () => {
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth()); // Current month (0-11)
     const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; // Day labels
     const [daysToShow, setDaysToShow] = useState<Date[]>([]);
+    const [allTasks, setAllTasks] = useState<TaskType[]>([]);
+
+    const collectTasks = (newTasks: TaskType[]) => {
+        setAllTasks(prevTasks => [...prevTasks, ...newTasks]);
+    };
+
 
     useEffect(() => {
         const fetchHolidays = async () => {
@@ -51,7 +58,7 @@ const Calendar: React.FC = () => {
     const getWeekStartDate = (date: Date) => {
         const startDate = new Date(date);
         const day = startDate.getDay();
-        const diff = startDate.getDate() - day + (day === 0 ? -6 : 0); // adjust when week starts
+        const diff = startDate.getDate() - day + (day === 0 ? -6 : 0); 
         return new Date(startDate.setDate(diff));
     };
 
@@ -101,12 +108,33 @@ const Calendar: React.FC = () => {
             document.body.removeChild(link);
         }
     };
+
+    // Export to CSV function
+    const exportToCsv = () => {
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Date, Task ID, Task Text, Task Color\n"; 
+
+        allTasks.forEach(task => {
+            const row = `${task.date}, ${task.id}, "${task.text}", "${task.taskColor}"\n`;
+            csvContent += row;
+        });
+
+        // Create a Blob with the CSV content
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "calendar_tasks_data.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
         <>
             {/* navbar */}
 
 
-            <Navbar onViewChange={handleViewChange} onDownloadAsPng={handleDownloadAsPng} />
+            <Navbar onViewChange={handleViewChange} onDownloadAsPng={handleDownloadAsPng} onExportToCsv={exportToCsv} />
             <div id='calendar'>
 
                 <CalendarHeader>
@@ -132,20 +160,21 @@ const Calendar: React.FC = () => {
 
                 </CalendarHeader>
                 <S.CalendarGrid>
-                    {daysToShow.map((day, index) => {
-                        const dayString = day.toISOString().split('T')[0];
-                        const dayHolidays = holidays.filter(holiday => holiday.date === dayString);
+  {daysToShow.map((day, index) => {
+    const dayString = day.toISOString().split('T')[0];
+    const dayHolidays = holidays.filter(holiday => holiday.date === dayString);
 
-                        return (
-                            <DayCell
-                                key={index}
-                                date={day}
-                                holidays={dayHolidays}
-                                viewMode=''
-                            />
-                        );
-                    })}
-                </S.CalendarGrid>
+    return (
+      <DayCell 
+        key={index} 
+        date={day} 
+        holidays={dayHolidays} 
+        viewMode={viewMode} 
+        updateTasks={collectTasks}
+      />
+    );
+  })}
+</S.CalendarGrid>
                 <WeekdayFooter>
                     {['1', '2', '3', '4', '5', '6', '7'].map((num) => (
                         <FooterItem key={num}>{num}</FooterItem>

@@ -7,9 +7,10 @@ import html2canvas from 'html2canvas';
 interface NavBarProps {
     onViewChange: (view: string) => void;
     onDownloadAsPng: () => void;
+    onExportToCsv: () => void;
 }
 
-const Navbar: React.FC<NavBarProps> = ({ onViewChange, onDownloadAsPng }) => {
+const Navbar: React.FC<NavBarProps> = ({ onViewChange, onDownloadAsPng, onExportToCsv }) => {
 
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null); 
@@ -60,7 +61,7 @@ const Navbar: React.FC<NavBarProps> = ({ onViewChange, onDownloadAsPng }) => {
             {menuOpen && (
                 <S.DropdownMenu ref={menuRef}>
                     <p onClick={() => {/* handle import logic */}}>Import</p>
-                    <p onClick={() => {/* handle export logic */}}>Export</p>
+                    <p onClick={onExportToCsv}>Export to CSV</p> 
                     <p onClick={onDownloadAsPng}>Download as PNG</p>
                 </S.DropdownMenu>
             )}
