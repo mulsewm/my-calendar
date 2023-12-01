@@ -20,8 +20,9 @@ export const Branding = styled.div`
 `;
 
 export const NavControls = styled.div`
-    display: flex;
+    display: flex-left;
     align-items: center;
+  
 `;
 
 export const NavButton = styled.button`
@@ -37,10 +38,24 @@ export const NavButton = styled.button`
 `;
 
 export const ViewOptions = styled.div`
-    display: flex;
-    align-items: center;
-`;
+  button {
+    background: none;
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    margin: 0 5px;
+    cursor: pointer;
+    font-size: 18px;
 
+    &:hover {
+      background-color: #FFD700; /* Gold color */
+    }
+
+    &.active {
+      border-bottom: 2px solid white;
+    }
+  }
+`;
 export const ViewButton = styled.button`
     background-color: white;
     border: none;
@@ -52,4 +67,24 @@ export const ViewButton = styled.button`
     &:hover {
         background-color: #eee;
     }
+`;
+export const DropdownMenu = styled.div`
+  position: absolute;
+  top: 0%; // Position it below the button
+  right: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  z-index: 1000; // Make sure it's on top of other elements
+
+  p {
+    padding: 8px;
+    margin: 0;
+    cursor: pointer;
+    &:hover {
+      background-color: #f6f6f6;
+    }
+  }
 `;
