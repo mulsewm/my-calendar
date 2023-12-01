@@ -1,17 +1,20 @@
 import React, { useState,useEffect } from 'react';
+import Label from '../Label/Label';
 
 interface TaskProps {
     task: {
         id: number;
         text: string;
+        labels: Label[]; 
     };
     onUpdateTask: (id: number, newText: string) => void;
 }
 export interface TaskType {
     id: number;
     text: string;
-    date?: string; // Include date if tasks have a date property
-    taskColor?: string; // Include taskColor if tasks have a color property
+    date?: string; 
+    taskColor?: string; 
+    labels: Label[]; 
 }
 
 
@@ -39,10 +42,19 @@ const Task: React.FC<TaskProps> = ({ task, onUpdateTask }) => {
         setIsEditing(false);
     };
 
+    const renderLabels = () => {
+        return task.labels.map((label, index) => (
+          <div key={index} style={{ backgroundColor: label.color, color: '#fff', padding: '2px 5px', borderRadius: '5px', margin: '2px' }}>
+            {label.text}
+          </div>
+        ));
+      };
 
     return (
-        <div style={{ backgroundColor: taskColor }}>
-            {isEditing ? (
+        <div style={{ backgroundColor: taskColor, padding: '10px', margin: '5px 0', borderRadius: '5px' }}>
+        {renderLabels()}
+        {isEditing ? (
+  
                 <>
                     <input
                         type="text"

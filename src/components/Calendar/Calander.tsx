@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import DayCell from './DayCell';
-import { TaskType } from '../Task/Task';
+import Task from '../Task/Task';
 import Navbar from '../Navbar/Navbar';
 import * as S from './Calendar.styles';
+import Label from '../Label/Label';
 import { CalendarHeader, ViewControls, CalendarGrid, WeekdayFooter, FooterItem } from './Calendar.styles';
 import html2canvas from 'html2canvas';
 
@@ -13,6 +14,14 @@ interface Holiday {
     localName: string;
 
 }
+interface TaskType {
+    id: number;
+    text: string;
+    date: string; 
+    labels: Label[];
+}
+
+
 const Calendar: React.FC = () => {
     // State to store the current view mode and current date
     const [viewMode, setViewMode] = useState('month'); // 'week' or 'month'
@@ -23,11 +32,27 @@ const Calendar: React.FC = () => {
     const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; // Day labels
     const [daysToShow, setDaysToShow] = useState<Date[]>([]);
 
-   const [allTasks, setAllTasks] = useState<TaskType[]>([]);
 
     const collectTasks = (newTasks: TaskType[]) => {
         setAllTasks([...allTasks, ...newTasks]);
     };
+    const [allTasks, setAllTasks] = useState<TaskType[]>([
+        
+    ]);
+    
+
+    const fetchTasksForDay = (date: Date): TaskType[] => {
+        const dateString = date.toISOString().split('T')[0];
+        return allTasks.filter(task => task.date === dateString);
+    };
+    const handleAddTask = (newTask: TaskType) => {
+        setAllTasks([...allTasks, newTask]);
+      };
+    
+      const handleUpdateTask = (updatedTask: TaskType) => {
+        setAllTasks(allTasks.map(task => task.id === updatedTask.id ? updatedTask : task));
+      };
+
 
 
     useEffect(() => {
@@ -162,21 +187,21 @@ const Calendar: React.FC = () => {
 
                 </CalendarHeader>
                 <S.CalendarGrid>
-                {daysToShow.map((day, index) => {
-                    const dayString = day.toISOString().split('T')[0];
-                    const dayHolidays = holidays.filter(holiday => holiday.date === dayString);
-
-                    return (
-                        <DayCell
-                            key={index}
-                            date={day}
-                            holidays={dayHolidays}
-                            viewMode={viewMode}
-                            updateTasks={collectTasks}
-                        />
-                    );
-                })}
-            </S.CalendarGrid>
+        {daysToShow.map((day, index) => {
+          const tasksForDay = fetchTasksForDay(day);
+          return (
+            <DayCell
+              key={index}
+              date={day}
+              tasks={tasksForDay}
+              holidays={holidays.filter(holiday => holiday.date === day.toISOString().split('T')[0])}
+              viewMode={viewMode}
+              onAddTask={handleAddTask}
+              onUpdateTask={handleUpdateTask}
+            />
+          );
+        })}
+      </S.CalendarGrid>
                 <WeekdayFooter>
                     {['1', '2', '3', '4', '5', '6', '7'].map((num) => (
                         <FooterItem key={num}>{num}</FooterItem>
