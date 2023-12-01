@@ -55,7 +55,7 @@ const DayCell: React.FC<DayCellProps> = ({ date, tasks, holidays, viewMode, onAd
     const updatedTask = tasks.find(task => task.id === taskId);
     if (updatedTask) {
       updatedTask.text = newText;
-      onUpdateTask(updatedTask); // Use the callback to update the task
+      onUpdateTask(updatedTask); 
     }
   };
 
@@ -69,12 +69,15 @@ const DayCell: React.FC<DayCellProps> = ({ date, tasks, holidays, viewMode, onAd
             {tasks.map(task => (
                 <Task key={task.id} task={task} onUpdateTask={handleUpdateTask} />
             ))}
-            <input
+          
+              <S.TaskInput
                 type="text"
                 value={newTaskText}
                 onChange={(e) => setNewTaskText(e.target.value)}
+                placeholder="What do u got today...?"
             />
-            <button onClick={handleAddTask}>Add Task</button>
+            <S.AddTaskButton onClick={handleAddTask}>+</S.AddTaskButton>
+
         </div>
     </S.Cell>
   );

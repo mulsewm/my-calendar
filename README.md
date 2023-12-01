@@ -8,7 +8,6 @@ This Calendar Task Organizer is a dynamic web application that allows users to c
 ## Features
 
 - **Task Management**: Create and edit tasks directly inside calendar cells.
-- **Drag and Drop**: Reassign tasks between days and reorder tasks within a single day.
 - **Label Management**: Create and edit/update  tasks, including color and text options.
 - **Label Assignment**: Assign multiple labels to a task.
 - **Label-Based Filtering**: Label tasks by their colour labels.

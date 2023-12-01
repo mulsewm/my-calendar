@@ -1,6 +1,6 @@
-// src/components/Calendar/DayCell.styles.ts
 
-import styled from '@emotion/styled'; // or 'styled-components'
+
+import styled from '@emotion/styled'; 
 
 export const Cell = styled.div`
     background-color: #fff;

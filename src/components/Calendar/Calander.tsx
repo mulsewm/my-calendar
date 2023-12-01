@@ -8,6 +8,9 @@ import * as S from './Calendar.styles';
 import Label from '../Label/Label';
 import { CalendarHeader, ViewControls, CalendarGrid, WeekdayFooter, FooterItem } from './Calendar.styles';
 import html2canvas from 'html2canvas';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons';
+
 
 interface Holiday {
     date: string;
@@ -17,7 +20,7 @@ interface Holiday {
 interface TaskType {
     id: number;
     text: string;
-    date: string; 
+    date: string;
     labels: Label[];
 }
 
@@ -32,14 +35,24 @@ const Calendar: React.FC = () => {
     const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; // Day labels
     const [daysToShow, setDaysToShow] = useState<Date[]>([]);
 
+    const getWeekStartDate = (date: Date) => {
+        const startDate = new Date(date);
+        const day = startDate.getDay();
+        const diff = startDate.getDate() - day + (day === 0 ? -6 : 1); // adjust when week starts
+        return new Date(startDate.setDate(diff));
+    };
+
+    // Then use the function to set the initial state
+    const [weekStartDate, setWeekStartDate] = useState<Date>(getWeekStartDate(new Date()));
+
 
     const collectTasks = (newTasks: TaskType[]) => {
         setAllTasks([...allTasks, ...newTasks]);
     };
     const [allTasks, setAllTasks] = useState<TaskType[]>([
-        
+
     ]);
-    
+
 
     const fetchTasksForDay = (date: Date): TaskType[] => {
         const dateString = date.toISOString().split('T')[0];
@@ -47,11 +60,11 @@ const Calendar: React.FC = () => {
     };
     const handleAddTask = (newTask: TaskType) => {
         setAllTasks([...allTasks, newTask]);
-      };
-    
-      const handleUpdateTask = (updatedTask: TaskType) => {
+    };
+
+    const handleUpdateTask = (updatedTask: TaskType) => {
         setAllTasks(allTasks.map(task => task.id === updatedTask.id ? updatedTask : task));
-      };
+    };
 
 
 
@@ -77,30 +90,21 @@ const Calendar: React.FC = () => {
         const days = calculateDaysToShow();
         setDaysToShow(days);
 
-    }, [currentDate, currentFilter, currentMonth]);
+    }, [currentDate, currentFilter, currentMonth, weekStartDate]);
 
-
-    // Function to get the start date of the week
-    const getWeekStartDate = (date: Date) => {
-        const startDate = new Date(date);
-        const day = startDate.getDay();
-        const diff = startDate.getDate() - day + (day === 0 ? -6 : 0); 
-        return new Date(startDate.setDate(diff));
-    };
 
 
     const calculateDaysToShow = () => {
-        const daysToShow = [];
-        let startDate;
-
+        let daysToShow = [];
         if (currentFilter === 'week') {
-            startDate = getWeekStartDate(new Date(currentDate.getFullYear(), currentMonth, 1));
             for (let i = 0; i < 7; i++) {
-                daysToShow.push(new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + i));
+                const newDate = new Date(weekStartDate);
+                newDate.setDate(newDate.getDate() + i);
+                daysToShow.push(newDate);
             }
         } else if (currentFilter === 'month') {
             // Start from the first day of the selected month
-            startDate = new Date(currentDate.getFullYear(), currentMonth, 1);
+            const startDate = new Date(currentDate.getFullYear(), currentMonth, 1);
             // Get the number of days in the month
             const daysInMonth = new Date(currentDate.getFullYear(), currentMonth + 1, 0).getDate();
             for (let i = 0; i < daysInMonth; i++) {
@@ -137,11 +141,11 @@ const Calendar: React.FC = () => {
 
     // Export to CSV function
     const exportToCsv = () => {
-        console.log("Exporting tasks:", allTasks); 
-    
+        console.log("Exporting tasks:", allTasks);
+
         let csvContent = "data:text/csv;charset=utf-8,";
         csvContent += "Date, Task ID, Task Text, Task Color\n"; // Column headers
-    
+
         allTasks.forEach(task => {
             const row = `${task.date}, ${task.id}, "${task.text}"\n`;
             csvContent += row;
@@ -154,6 +158,22 @@ const Calendar: React.FC = () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    };
+    // Week navigation functions
+    const moveToPreviousWeek = () => {
+        setWeekStartDate((prevStartDate) => {
+            const newStartDate = new Date(prevStartDate);
+            newStartDate.setDate(newStartDate.getDate() - 7);
+            return newStartDate;
+        });
+    };
+
+    const moveToNextWeek = () => {
+        setWeekStartDate((prevStartDate) => {
+            const newStartDate = new Date(prevStartDate);
+            newStartDate.setDate(newStartDate.getDate() + 7);
+            return newStartDate;
+        });
     };
 
     return (
@@ -170,6 +190,31 @@ const Calendar: React.FC = () => {
                             <option key={i} value={i}>{new Date(0, i).toLocaleString('default', { month: 'long' })}</option>
                         ))}
                     </select>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <button
+                            onClick={moveToPreviousWeek}
+                            style={{
+                                background: 'darkgray',
+                                border: 'none',
+                                padding: '5px',
+                                cursor: 'pointer',
+                                marginRight: '5px'
+                            }}
+                        >
+                            <FontAwesomeIcon icon={faAngleUp} />
+                        </button>
+                        <button
+                            onClick={moveToNextWeek}
+                            style={{
+                                background: 'darkgray',
+                                border: 'none',
+                                padding: '5px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            <FontAwesomeIcon icon={faAngleDown} />
+                        </button>
+                    </div>
                     <ViewControls>
                         <button
                             className={currentFilter === 'week' ? 'active' : ''}
@@ -187,21 +232,21 @@ const Calendar: React.FC = () => {
 
                 </CalendarHeader>
                 <S.CalendarGrid>
-        {daysToShow.map((day, index) => {
-          const tasksForDay = fetchTasksForDay(day);
-          return (
-            <DayCell
-              key={index}
-              date={day}
-              tasks={tasksForDay}
-              holidays={holidays.filter(holiday => holiday.date === day.toISOString().split('T')[0])}
-              viewMode={viewMode}
-              onAddTask={handleAddTask}
-              onUpdateTask={handleUpdateTask}
-            />
-          );
-        })}
-      </S.CalendarGrid>
+                    {daysToShow.map((day, index) => {
+                        const tasksForDay = fetchTasksForDay(day);
+                        return (
+                            <DayCell
+                                key={index}
+                                date={day}
+                                tasks={tasksForDay}
+                                holidays={holidays.filter(holiday => holiday.date === day.toISOString().split('T')[0])}
+                                viewMode={viewMode}
+                                onAddTask={handleAddTask}
+                                onUpdateTask={handleUpdateTask}
+                            />
+                        );
+                    })}
+                </S.CalendarGrid>
                 <WeekdayFooter>
                     {['1', '2', '3', '4', '5', '6', '7'].map((num) => (
                         <FooterItem key={num}>{num}</FooterItem>
