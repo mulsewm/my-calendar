@@ -21,7 +21,6 @@ const Navbar: React.FC<NavBarProps> = ({ onViewChange, onDownloadAsPng }) => {
 
 
     useEffect(() => {
-        // Add the type to the event parameter
         const handleClickOutside = (event: MouseEvent) => {
             const target = event.target as HTMLElement; 
             if (menuRef.current && !menuRef.current.contains(target)) {
@@ -43,7 +42,7 @@ const Navbar: React.FC<NavBarProps> = ({ onViewChange, onDownloadAsPng }) => {
             </S.Branding>
             <S.NavControls style={{ marginLeft: '-400px' }}>
                 <S.NavButton>
-                    <FontAwesomeIcon icon={faPlane} style={{ color: 'darkblue', marginRight: '8px' }} />
+                    <FontAwesomeIcon icon={faPlane} style={{ color: 'darkblue'}} />
                     Travidux, LLC BC
                 </S.NavButton>
                 <S.NavButton>

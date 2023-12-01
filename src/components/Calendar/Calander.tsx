@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import DayCell from './DayCell';
 import Navbar from '../Navbar/Navbar';
 import * as S from './Calendar.styles';
-import { CalendarHeader, ViewControls, CalendarGrid, WeekdayFooter, FooterItem  } from './Calendar.styles';
+import { CalendarHeader, ViewControls, CalendarGrid, WeekdayFooter, FooterItem } from './Calendar.styles';
 import html2canvas from 'html2canvas';
 
 interface Holiday {
@@ -20,6 +20,7 @@ const Calendar: React.FC = () => {
     const [currentFilter, setCurrentFilter] = useState<'week' | 'month'>('week'); // 'week' or 'month'
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth()); // Current month (0-11)
     const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; // Day labels
+    const [daysToShow, setDaysToShow] = useState<Date[]>([]);
 
     useEffect(() => {
         const fetchHolidays = async () => {
@@ -36,10 +37,15 @@ const Calendar: React.FC = () => {
             } catch (error) {
                 console.error('Error fetching holidays:', error);
             }
-        };
 
+        };
         fetchHolidays();
-    }, [currentDate]);
+        // Calculate the days to show based on the current filter and month
+        const days = calculateDaysToShow();
+        setDaysToShow(days);
+
+    }, [currentDate, currentFilter, currentMonth]);
+
 
     // Function to get the start date of the week
     const getWeekStartDate = (date: Date) => {
@@ -55,16 +61,17 @@ const Calendar: React.FC = () => {
         let startDate;
 
         if (currentFilter === 'week') {
-            startDate = getWeekStartDate(currentDate);
+            startDate = getWeekStartDate(new Date(currentDate.getFullYear(), currentMonth, 1));
             for (let i = 0; i < 7; i++) {
                 daysToShow.push(new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + i));
             }
-        } else {
-            // When the month filter is applied, show the first week of that month
-            const startMonth = new Date(currentDate.getFullYear(), currentMonth, 1);
-            startDate = getWeekStartDate(startMonth);
-            for (let i = 0; i < 7; i++) { // Show only the first week of the selected month
-                daysToShow.push(new Date(startMonth.getFullYear(), startMonth.getMonth(), startMonth.getDate() + i));
+        } else if (currentFilter === 'month') {
+            // Start from the first day of the selected month
+            startDate = new Date(currentDate.getFullYear(), currentMonth, 1);
+            // Get the number of days in the month
+            const daysInMonth = new Date(currentDate.getFullYear(), currentMonth + 1, 0).getDate();
+            for (let i = 0; i < daysInMonth; i++) {
+                daysToShow.push(new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + i));
             }
         }
 
@@ -72,75 +79,78 @@ const Calendar: React.FC = () => {
     };
 
 
-    const daysToShow = calculateDaysToShow();
-
     // Handler for view mode change
     const handleViewChange = (view: string) => {
         setViewMode(view);
     };
     const handleDownloadAsPng = async () => {
-        // Assuming you have a ref to the calendar element
+
         const calendarElement = document.getElementById('calendar');
-        
+
         if (calendarElement) {
-          // Convert the calendar element to a canvas using html2canvas
-          const canvas = await html2canvas(calendarElement);
-          // Create an image from the canvas
-          const image = canvas.toDataURL('image/png');
-          // Create a link to download the image
-          const link = document.createElement('a');
-          link.href = image;
-          link.download = 'calendar.png';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
+            // Convert the calendar element to a canvas using html2canvas
+            const canvas = await html2canvas(calendarElement);
+            // Create an image from the canvas
+            const image = canvas.toDataURL('image/png');
+            // Create a link to download the image
+            const link = document.createElement('a');
+            link.href = image;
+            link.download = 'calendar.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
-      };
+    };
     return (
         <>
             {/* navbar */}
 
-            
+
             <Navbar onViewChange={handleViewChange} onDownloadAsPng={handleDownloadAsPng} />
             <div id='calendar'>
 
-            <CalendarHeader>
-                <select value={currentMonth} onChange={(e) => setCurrentMonth(parseInt(e.target.value, 10))}>
-                    {Array.from({ length: 12 }, (_, i) => (
-                        <option key={i} value={i}>{new Date(0, i).toLocaleString('default', { month: 'long' })}</option>
+                <CalendarHeader>
+                    <select value={currentMonth} onChange={(e) => setCurrentMonth(parseInt(e.target.value, 10))}>
+                        {Array.from({ length: 12 }, (_, i) => (
+                            <option key={i} value={i}>{new Date(0, i).toLocaleString('default', { month: 'long' })}</option>
+                        ))}
+                    </select>
+                    <ViewControls>
+                        <button
+                            className={currentFilter === 'week' ? 'active' : ''}
+                            onClick={() => setCurrentFilter('week')}>
+                            Week
+                        </button>
+                        <button
+                            className={currentFilter === 'month' ? 'active' : ''}
+                            onClick={() => {
+                                setCurrentFilter('month');
+                            }}>
+                            Month
+                        </button>
+                    </ViewControls>
+
+                </CalendarHeader>
+                <S.CalendarGrid>
+                    {daysToShow.map((day, index) => {
+                        const dayString = day.toISOString().split('T')[0];
+                        const dayHolidays = holidays.filter(holiday => holiday.date === dayString);
+
+                        return (
+                            <DayCell
+                                key={index}
+                                date={day}
+                                holidays={dayHolidays}
+                                viewMode=''
+                            />
+                        );
+                    })}
+                </S.CalendarGrid>
+                <WeekdayFooter>
+                    {['1', '2', '3', '4', '5', '6', '7'].map((num) => (
+                        <FooterItem key={num}>{num}</FooterItem>
                     ))}
-                </select>
-                <ViewControls>
-
-                    <button className={currentFilter === 'week' ? 'active' : ''} onClick={() => setCurrentFilter('week')}>
-                        Week
-                    </button>
-                    <button className={currentFilter === 'month' ? 'active' : ''} onClick={() => setCurrentFilter('month')}>
-                        Month
-                    </button>
-
-                </ViewControls>
-            </CalendarHeader>
-            <S.CalendarGrid>
-                {daysToShow.map((day, index) => {
-                    const dayString = day.toISOString().split('T')[0];
-                    const dayHolidays = holidays.filter(holiday => holiday.date === dayString);
-
-                    return (
-                        <DayCell
-                            key={index}
-                            date={day}
-                            holidays={dayHolidays}
-                            viewMode=''
-                        />
-                    );
-                })}
-            </S.CalendarGrid>
-            <WeekdayFooter>
-        {['1', '2', '3', '4', '5', '6', '7'].map((num) => (
-          <FooterItem key={num}>{num}</FooterItem>
-        ))}
-      </WeekdayFooter>
+                </WeekdayFooter>
             </div>
         </>
     );
