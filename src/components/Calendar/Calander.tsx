@@ -26,7 +26,7 @@ interface TaskType {
 }
 type TasksByDayType = {
     [key: string]: TaskType[];
-  };
+};
 
 const Calendar: React.FC = () => {
     // State to store the current view mode and current date
@@ -180,39 +180,49 @@ const Calendar: React.FC = () => {
         });
     };
 
-   
 
-  
+
+
     const updateTasksInDay = (day: Date, updatedTasks: TaskType[]) => {
         setTasksByDay(prevTasksByDay => {
-              const dayKey = day.toISOString().split('T')[0]; // Format the date as string to use as a key
-              return {
+            const dayKey = day.toISOString().split('T')[0]; // Format the date as string to use as a key
+            return {
                 ...prevTasksByDay,
-                [dayKey]: updatedTasks, // Update the tasks array for the specific day
-              };
-            });
-          };
-          
-          const onDragEnd = (result: DropResult) => {
-            const { destination, source, draggableId } = result;
-          
-            if (!destination) {
-              return;
-            }
-          
-            const dayKey = source.droppableId;
-            const currentDayTasks = [...tasksByDay[dayKey]];
-            const draggedTaskIndex = currentDayTasks.findIndex((task) => task.id === parseInt(draggableId, 10));
-            const [reorderedTask] = currentDayTasks.splice(draggedTaskIndex, 1);
-            currentDayTasks.splice(destination.index, 0, reorderedTask);
-          
-            setTasksByDay({
-              ...tasksByDay,
-              [dayKey]: currentDayTasks,
-            });
-          };
-          
-          
+                [dayKey]: updatedTasks,
+            };
+        });
+    };
+
+    const onDragEnd = (result: DropResult) => {
+        const { destination, source, draggableId } = result;
+    
+        // Check if there's a valid destination
+        if (!destination) {
+            return;
+        }
+    
+        if (
+            destination.droppableId === source.droppableId &&
+            destination.index === source.index
+        ) {
+            return;
+        }
+        // we only handle reordering within the same day.
+        const dayKey = source.droppableId;
+        const dayTasks = tasksByDay[dayKey] ? [...tasksByDay[dayKey]] : [];
+        const draggedTaskIndex = dayTasks.findIndex((task) => task.id === parseInt(draggableId, 10));
+        
+        const reorderedTask = dayTasks.splice(draggedTaskIndex, 1)[0];
+        dayTasks.splice(destination.index, 0, reorderedTask);
+    
+        // Update the state with the new order
+        setTasksByDay({
+            ...tasksByDay,
+            [dayKey]: dayTasks,
+        });
+    };
+    
+
 
 
     return (

@@ -58,6 +58,7 @@ const DayCell: React.FC<DayCellProps> = ({ date, tasks, holidays, viewMode, onAd
       onUpdateTask(updatedTask);
     }
   };
+  
 
   return (
     <S.Cell>
