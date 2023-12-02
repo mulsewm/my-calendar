@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import Task from '../Task/Task';
 import * as S from './DayCell.styles';
-
+import { Droppable } from 'react-beautiful-dnd';
 
 interface Label {
   text: string;
@@ -13,7 +13,7 @@ interface TaskType {
   id: number;
   text: string;
   date: string;
-  labels: Label[]; 
+  labels: Label[];
 }
 
 interface Holiday {
@@ -42,7 +42,7 @@ const DayCell: React.FC<DayCellProps> = ({ date, tasks, holidays, viewMode, onAd
       return;
     }
     const newTask = {
-      id: Date.now(), 
+      id: Date.now(),
       text: newTaskText,
       date: date.toISOString().split('T')[0],
       labels: [], // Add labels as needed
@@ -55,30 +55,38 @@ const DayCell: React.FC<DayCellProps> = ({ date, tasks, holidays, viewMode, onAd
     const updatedTask = tasks.find(task => task.id === taskId);
     if (updatedTask) {
       updatedTask.text = newText;
-      onUpdateTask(updatedTask); 
+      onUpdateTask(updatedTask);
     }
   };
 
   return (
     <S.Cell>
-        <S.DateLabel>{date.toDateString()}</S.DateLabel>
+      <S.DateLabel>{date.toDateString()}</S.DateLabel>
       {holidays.map((holiday, index) => (
         <S.HolidayLabel key={index}>{holiday.localName}</S.HolidayLabel>
       ))}
-     <div>
-            {tasks.map(task => (
-                <Task key={task.id} task={task} onUpdateTask={handleUpdateTask} />
+      <Droppable droppableId={date.toISOString()}>
+        {(provided) => (
+          <div
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+          >
+            {tasks.map((task, index) => (
+              <Task key={task.id} task={task} index={index} onUpdateTask={handleUpdateTask} />
             ))}
-          
-              <S.TaskInput
-                type="text"
-                value={newTaskText}
-                onChange={(e) => setNewTaskText(e.target.value)}
-                placeholder="What do u got today...?"
+
+
+            <S.TaskInput
+              type="text"
+              value={newTaskText}
+              onChange={(e) => setNewTaskText(e.target.value)}
+              placeholder="What do u got today...?"
             />
             <S.AddTaskButton onClick={handleAddTask}>+</S.AddTaskButton>
-
-        </div>
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
     </S.Cell>
   );
 };

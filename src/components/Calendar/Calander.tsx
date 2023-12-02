@@ -9,7 +9,8 @@ import Label from '../Label/Label';
 import { CalendarHeader, ViewControls, CalendarGrid, WeekdayFooter, FooterItem } from './Calendar.styles';
 import html2canvas from 'html2canvas';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleUp, faAngleDown } from '@fortawesome/free-solid-svg-icons';
+import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
+import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 
 
 interface Holiday {
@@ -23,7 +24,9 @@ interface TaskType {
     date: string;
     labels: Label[];
 }
-
+type TasksByDayType = {
+    [key: string]: TaskType[];
+  };
 
 const Calendar: React.FC = () => {
     // State to store the current view mode and current date
@@ -34,6 +37,7 @@ const Calendar: React.FC = () => {
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth()); // Current month (0-11)
     const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; // Day labels
     const [daysToShow, setDaysToShow] = useState<Date[]>([]);
+    const [tasksByDay, setTasksByDay] = useState<TasksByDayType>({});
 
     const getWeekStartDate = (date: Date) => {
         const startDate = new Date(date);
@@ -176,83 +180,119 @@ const Calendar: React.FC = () => {
         });
     };
 
+   
+
+  
+    const updateTasksInDay = (day: Date, updatedTasks: TaskType[]) => {
+        setTasksByDay(prevTasksByDay => {
+              const dayKey = day.toISOString().split('T')[0]; // Format the date as string to use as a key
+              return {
+                ...prevTasksByDay,
+                [dayKey]: updatedTasks, // Update the tasks array for the specific day
+              };
+            });
+          };
+          
+          const onDragEnd = (result: DropResult) => {
+            const { destination, source, draggableId } = result;
+          
+            if (!destination) {
+              return;
+            }
+          
+            const dayKey = source.droppableId;
+            const currentDayTasks = [...tasksByDay[dayKey]];
+            const draggedTaskIndex = currentDayTasks.findIndex((task) => task.id === parseInt(draggableId, 10));
+            const [reorderedTask] = currentDayTasks.splice(draggedTaskIndex, 1);
+            currentDayTasks.splice(destination.index, 0, reorderedTask);
+          
+            setTasksByDay({
+              ...tasksByDay,
+              [dayKey]: currentDayTasks,
+            });
+          };
+          
+          
+
+
     return (
         <>
             {/* navbar */}
 
 
             <Navbar onViewChange={handleViewChange} onDownloadAsPng={handleDownloadAsPng} onExportToCsv={exportToCsv} />
-            <div id='calendar'>
+            <DragDropContext onDragEnd={onDragEnd}>
+                <div id='calendar'>
 
-                <CalendarHeader>
-                    <select value={currentMonth} onChange={(e) => setCurrentMonth(parseInt(e.target.value, 10))}>
-                        {Array.from({ length: 12 }, (_, i) => (
-                            <option key={i} value={i}>{new Date(0, i).toLocaleString('default', { month: 'long' })}</option>
+                    <CalendarHeader>
+                        <select value={currentMonth} onChange={(e) => setCurrentMonth(parseInt(e.target.value, 10))}>
+                            {Array.from({ length: 12 }, (_, i) => (
+                                <option key={i} value={i}>{new Date(0, i).toLocaleString('default', { month: 'long' })}</option>
+                            ))}
+                        </select>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <button
+                                onClick={moveToPreviousWeek}
+                                style={{
+                                    background: 'darkgray',
+                                    border: 'none',
+                                    padding: '5px',
+                                    cursor: 'pointer',
+                                    marginRight: '5px'
+                                }}
+                            >
+                                <FontAwesomeIcon icon={faAngleLeft} />
+                            </button>
+                            <button
+                                onClick={moveToNextWeek}
+                                style={{
+                                    background: 'darkgray',
+                                    border: 'none',
+                                    padding: '5px',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                <FontAwesomeIcon icon={faAngleRight} />                        </button>
+                        </div>
+                        <ViewControls>
+                            <button
+                                className={currentFilter === 'week' ? 'active' : ''}
+                                onClick={() => setCurrentFilter('week')}>
+                                Week
+                            </button>
+                            <button
+                                className={currentFilter === 'month' ? 'active' : ''}
+                                onClick={() => {
+                                    setCurrentFilter('month');
+                                }}>
+                                Month
+                            </button>
+                        </ViewControls>
+
+                    </CalendarHeader>
+                    <S.CalendarGrid>
+                        {daysToShow.map((day, index) => {
+                            const tasksForDay = fetchTasksForDay(day);
+                            return (
+                                <DayCell
+                                    key={index}
+                                    date={day}
+                                    tasks={tasksForDay}
+                                    holidays={holidays.filter(holiday => holiday.date === day.toISOString().split('T')[0])}
+                                    viewMode={viewMode}
+                                    onAddTask={handleAddTask}
+                                    onUpdateTask={handleUpdateTask}
+                                />
+                            );
+                        })}
+                    </S.CalendarGrid>
+                    <WeekdayFooter>
+                        {['1', '2', '3', '4', '5', '6', '7'].map((num) => (
+                            <FooterItem key={num}>{num}</FooterItem>
                         ))}
-                    </select>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <button
-                            onClick={moveToPreviousWeek}
-                            style={{
-                                background: 'darkgray',
-                                border: 'none',
-                                padding: '5px',
-                                cursor: 'pointer',
-                                marginRight: '5px'
-                            }}
-                        >
-                            <FontAwesomeIcon icon={faAngleUp} />
-                        </button>
-                        <button
-                            onClick={moveToNextWeek}
-                            style={{
-                                background: 'darkgray',
-                                border: 'none',
-                                padding: '5px',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            <FontAwesomeIcon icon={faAngleDown} />
-                        </button>
-                    </div>
-                    <ViewControls>
-                        <button
-                            className={currentFilter === 'week' ? 'active' : ''}
-                            onClick={() => setCurrentFilter('week')}>
-                            Week
-                        </button>
-                        <button
-                            className={currentFilter === 'month' ? 'active' : ''}
-                            onClick={() => {
-                                setCurrentFilter('month');
-                            }}>
-                            Month
-                        </button>
-                    </ViewControls>
-
-                </CalendarHeader>
-                <S.CalendarGrid>
-                    {daysToShow.map((day, index) => {
-                        const tasksForDay = fetchTasksForDay(day);
-                        return (
-                            <DayCell
-                                key={index}
-                                date={day}
-                                tasks={tasksForDay}
-                                holidays={holidays.filter(holiday => holiday.date === day.toISOString().split('T')[0])}
-                                viewMode={viewMode}
-                                onAddTask={handleAddTask}
-                                onUpdateTask={handleUpdateTask}
-                            />
-                        );
-                    })}
-                </S.CalendarGrid>
-                <WeekdayFooter>
-                    {['1', '2', '3', '4', '5', '6', '7'].map((num) => (
-                        <FooterItem key={num}>{num}</FooterItem>
-                    ))}
-                </WeekdayFooter>
-            </div>
+                    </WeekdayFooter>
+                </div>
+            </DragDropContext>
         </>
     );
 };
