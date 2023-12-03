@@ -9,6 +9,7 @@ This Calendar Task Organizer is a dynamic web application that allows users to c
 
 - **Task Management**: Create and edit tasks directly inside calendar cells.
 - **Label Management**: Create and edit/update  tasks, including color and text options.
+- **Drag Re-arrange Tasks**: Drag and Re-arrange  tasks in a cell.
 - **Label Assignment**: Assign multiple labels to a task.
 - **Label-Based Filtering**: Label tasks by their colour labels.
 - **Data Import/Export**: Import and export calendar data in JSON or other formats.
@@ -24,7 +25,7 @@ This Calendar Task Organizer is a dynamic web application that allows users to c
 - html2canvas for exporting the calendar screen as png
 - API integration for fetching public national holidays
 
-![Calendar Screenshot](./calendar.png)
+![Calendar Screenshot](my-calendar.png)
 ## Setup and Installation
 
 1. Clone the repository:
